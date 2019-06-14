@@ -7,9 +7,13 @@ log(fn)
 export class GeneratorBase {
     
     public settings:any;
+    public name:String;
 
     constructor(settings:any = {} ) {
         this.settings = settings 
         log(fn + ".constructor");
     }
+
+    //DEV simple function to verify which generator has been called
+    public getName() { return this.name };
 }

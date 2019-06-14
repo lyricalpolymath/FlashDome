@@ -7,7 +7,7 @@ import { domeSettings } from "domeSettings";
 import * as generators from "./generators/generatorIndex";  // import all generators
 log(fn + " imported generators: ", generators)
 log(fn + " imported generators.keys: ", Object.keys(generators))
-log(fn + " imported generators.singleEntityGen: ", generators.singleEntityGen) //
+log(fn + " imported generators.singleEntityGen: ", generators.SingleEntityGen) //undefined > why?
 
 
 // Dome extends Entity so that it can have it´s own children 
@@ -29,6 +29,7 @@ export class FlashDome extends Entity {
         log(fn + ".constructor called this.center: ", this.parcelCenter);
 
         engine.addEntity(this); // add the dome as an entity
+        
         this.generateDome();
     }
 
@@ -41,11 +42,9 @@ export class FlashDome extends Entity {
 
         // WIP-START_FROM_HERE - choose dome shape generator (swappable)
             // single, simple circles fibonacci etc
-        // get the selected generator from the settings
-        this.getGeneratorFromSettings() ;    
-        //log(fn + ".generateDome - generators.keys.context       : " + Object.keys(generators)) // singleEntityGen,dclamd,context
-        log(fn + ".generateDome - this.generator: ", this.generator); 
-        log(fn + ".generateDome - this.generator.settings: ", this.generator.settings); 
+        // get the selected generator from the settings 
+        this.setGeneratorFromSettings();  // assigns it to this.generator
+        
         //this.generato
 
 
@@ -61,10 +60,11 @@ export class FlashDome extends Entity {
         // quick test - position 1 tile at the center
         // lesson learned Tyle object need to provide a shape and a transform as for example the cilinder needs to be scaled down
         //  possibly here in flashDome we simply have a new Tile(type), and every tile implements the spawnTile or does all the setup in their constructor
-        var t1 = this.spawnTile(this.parcelCenter);
+        // var t1 = this.spawnTile(this.parcelCenter);
+        
         //t1.getComponentOrNull(Transform).scale = new Vector3(0,2,0); 
         //log(fn + ".generateDome t1.getComponentOrNull(shape): ", t1.getComponentOrNull(shape));
-        log(fn + ".generateDome t1: ", t1);
+        //log(fn + ".generateDome t1: ", t1);
 
         
 
@@ -74,6 +74,7 @@ export class FlashDome extends Entity {
     }
 
 
+    /*
     private spawnTile(pos:Vector3) {
         log(fn + ".spawnTile pos: ", pos);
         const tile = new Entity()                                             // create the entity
@@ -111,6 +112,7 @@ export class FlashDome extends Entity {
 
         return tile
     }
+    */
 
 
 
@@ -119,37 +121,55 @@ export class FlashDome extends Entity {
 
     //TODO put this in a generic DCL utils, other objects will need to know their center
     public getParcelCenter(){
-        log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
+        //log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
         if (!this.parcelCenter) {
-            log(fn + ".getParcelCenter - generating ParcelCenter: ", this.parcelCenter);
-            const parcelSize = 16 //meters per parcel
+            //log(fn + ".getParcelCenter - generating ParcelCenter: ", this.parcelCenter);
+            const parcelSize = 16                               //meters per parcel
             const cx = (this.settings.parcel.w/2) * parcelSize;
             const cz = (this.settings.parcel.h/2) * parcelSize;
-            this.parcelCenter = <Vector3>{x: cx, y:0, z: cz}
+            this.parcelCenter = new Vector3(cx,0,cz)            //<Vector3>{x: cx, y:0, z: cz}
         }
-        log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
-        //return {x: cx, y:0, z: cz}
-        //return [cx,0,cz]
-        //return <Vector3>{x: cx, y:0, z: cz}
+        //log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
         return this.parcelCenter;
     }
 
 
     // helps retrieve the generator from the settings object (1,2,3,4)
-    private getGeneratorFromSettings() {
-        //let gen = this.generator
+    // better to get it from the settings so that if you change them you can relaunch the dome another time
+    /*
+    private setGeneratorFromSettings1() {
+        let gen //= this.generator
         switch (this.settings.generateWith) {
             case 1:
-                this.generator = new generators.singleEntityGen(this.settings);
+                this.generator = new generators.SingleEntityGen(this.settings);
                 break;
             //case 2:
             //    gen = generators.circleGen;
             //    break;
             default:
-                this.generator = new generators.singleEntityGen(this.settings);
+                this.generator = new generators.SingleEntityGen(this.settings);
         }
-        log(fn + ".getGeneratorFromSettings generators: ", generators);
-        log(fn + ".getGeneratorFromSettings this.generator: ", this.generator);
+        //log(fn + ".getGeneratorFromSettings generators: ", generators); // useless holds only this object   {dclamd: 2}
+        log(fn + ".getGeneratorFromSettings this.generator: ", this.generator); 
+    }
+    */
+
+    private setGeneratorFromSettings() {
+        var genTypes = this.settings.generatorTypes
+        switch (this.settings.generator) {
+            case genTypes.SINGLE:
+                this.generator = new generators.SingleEntityGen(this.settings);
+                break;
+            case genTypes.DOUBLE:
+                this.generator = new generators.DoubleEntityGen(this.settings);
+                break;
+            default:
+                this.generator = new generators.SingleEntityGen(this.settings);
+        }
+        //log(fn + ".getGeneratorFromSettings generators: ", generators); // useless holds only this object   {dclamd: 2}
+        log(fn + ".getGeneratorFromSettings this.generator: ", this.generator); 
+        log(fn + ".getGeneratorFromSettings - this.generator.settings: ", this.generator.settings); 
+        log(fn + ".getGeneratorFromSettings - this.generator.getName(): ", this.generator.getName());
     }
 
 

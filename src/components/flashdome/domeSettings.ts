@@ -4,10 +4,11 @@ log(fn + " called")
 
 enum generatorTypes {
     SINGLE = 1,
-    CIRCLE = 2,
-    //SPIRAL = 3,
-    //FIBONACCI = 4,
-    //SCATTER = 5
+    DOUBLE = 2,
+    CIRCLE = 3,
+    //SPIRAL = 4,
+    //FIBONACCI = 5,
+    //SCATTER = 6
 }
 
 export const domeSettings = {
@@ -19,8 +20,10 @@ export const domeSettings = {
     tilesMin: 1,
     tilesMax: 1,
 
-    generatorTypes: generatorTypes,         // copy the enum, is this even needed?
-    generateWith: 1                         // us this generator. if set to 0 = random
+    generatorTypes: generatorTypes,
+    generator: generatorTypes.DOUBLE,
+
+
 }
 
 

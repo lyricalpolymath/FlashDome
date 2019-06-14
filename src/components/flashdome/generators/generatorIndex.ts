@@ -4,6 +4,6 @@
 const fn = "singleEntityGen"
 log(fn)
 
-import { singleEntityGen } from "./singleEntityGen" // do I need to export? possibly not
-export { default as singleEntityGen } from "./singleEntityGen";
-
+// there is no need to import them first
+export { default as SingleEntityGen } from "./singleEntityGen";
+export { default as DoubleEntityGen } from "./doubleEntityGen";
