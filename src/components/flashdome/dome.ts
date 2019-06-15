@@ -4,10 +4,23 @@ log(fn + " called")
 
 import { domeSettings } from "domeSettings";
 //import { singleEntityGen /*, simpleCircleGen*/ } from "./generators/"
-import * as generators from "./generators/generatorIndex";  // import all generators
-log(fn + " imported generators: ", generators)
-log(fn + " imported generators.keys: ", Object.keys(generators))
-log(fn + " imported generators.singleEntityGen: ", generators.SingleEntityGen) //undefined > why?
+
+//import "./generators/index";
+import * as generators from "./generators/index";           // import all generators
+import * as tileTypes from "./tiles/index";                 // import all tiles
+//import { Tile } from "./tiles/tile";
+
+//import { GeneratorBase } from "./generators/generatorBase"; // for typing the 
+    
+//log(fn + " imported generators: ", generators)                                   // {dclamd: 2}   why?
+log(fn + " imported generators.keys: ", Object.keys(generators))                 //["Generator", "SingleEntityGen", "DoubleEntityGen", "dclamd", "context"]
+//log(fn + " imported generators.singleEntityGen: ", generators.SingleEntityGen) //undefined > why?
+
+//log(fn + " imported tileTypes: ", tileTypes)                                     //{dclamd: 2}   why?
+//log(fn + " imported tileTypes.dclamd: ", tileTypes.dclamd)                       // 2        
+log(fn + " imported tileTypes.keys: ", Object.keys(tileTypes))                   //["Tile", "DotTile", "PlaneTile", "dclamd", "context"]
+//log(fn + " imported tileTypes.DotTile: ", tileTypes.DotTile)                   //undefined > why?
+
 
 
 // Dome extends Entity so that it can have it´s own children 
@@ -15,11 +28,12 @@ export class FlashDome extends Entity {
 
     public settings = domeSettings;             // no need to go through the constructor
     public parcelCenter:Vector3;                // = this.getCenter();
+    public generator:generators.Generator;      // holds the selected generator - set it in the domeSettings
+    public tileObj:tileTypes.Tile;                 //
+
     //public eventManager = new EventManager()    // to signal it´s state changes
     //public tileGroup;
-
-    public generator;                           // testing multiple generators
-
+    
     constructor(){
         super();
         log(fn + ".constructor called this.settings: ", this.settings);
@@ -40,22 +54,23 @@ export class FlashDome extends Entity {
     private generateDome(){
         log(fn + ".generateDome");
 
-        // WIP-START_FROM_HERE - choose dome shape generator (swappable)
-            // single, simple circles fibonacci etc
-        // get the selected generator from the settings 
-        this.setGeneratorFromSettings();  // assigns it to this.generator
-        
-        //this.generato
+        // choose dome shape generator (swappable) eg: single, simple circles fibonacci etc
+        // get the selected generator from the settings > assigns it to this.generator
+        this.setGeneratorFromSettings();  
+        log(fn + ".generateDome this.generator: ", this.generator);
 
+        // TODO - choose tile shape - eg dot (flat cilinder, cube, cone) etc
+        this.tileObj = this.setTileType();
+        log(fn + ".generateDome1 - log - this.tileObj: ", this.tileObj);// it appears undefined in the log although it is not in the console
+        console.log(fn + ".generateDome2 - console.log - this.tileObj: ", this.tileObj)
+        console.dir(fn + ".generateDome3 - console.dir - this.tileObj: ", this.tileObj)
 
-        // TODO - choose tile shape
-            // dot (flat cilinder)
-            // cube
-            // cone
+        var t1 = new this.tileObj(); // Works even if Typescript complains :) yay!
+
 
         // TODO 3 - generate the dome with the given tyle 
             // questions - can it generate without importing the specific tile?
-        
+        //this.generator.generateCurve(this.tile);
 
         // quick test - position 1 tile at the center
         // lesson learned Tyle object need to provide a shape and a transform as for example the cilinder needs to be scaled down
@@ -119,6 +134,25 @@ export class FlashDome extends Entity {
 
 ///////////////////////////////////////  UTITLITIES
 
+    // sets the tile type either from the settings or by passing it as a variable
+    private setTileType(){
+        var tileTypesSetting = this.settings.tileTypes
+        var tt:any;
+        switch (this.settings.tile) {
+            case tileTypesSetting.DOT:
+                this.tileObj = tileTypes.DotTile  // pass only the object not the instance of a new DotTile
+                break;
+            case tileTypesSetting.PLANE:
+                this.tileObj = tileTypes.PlaneTile
+                break;
+            default:
+                this.tileObj = tileTypes.DotTile 
+        }
+        //*/
+        log(fn + ".setTileType this.tileObj: ", this.tileObj); 
+        return this.tileObj //tt
+    }
+
     //TODO put this in a generic DCL utils, other objects will need to know their center
     public getParcelCenter(){
         //log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
@@ -136,40 +170,22 @@ export class FlashDome extends Entity {
 
     // helps retrieve the generator from the settings object (1,2,3,4)
     // better to get it from the settings so that if you change them you can relaunch the dome another time
-    /*
-    private setGeneratorFromSettings1() {
-        let gen //= this.generator
-        switch (this.settings.generateWith) {
-            case 1:
-                this.generator = new generators.SingleEntityGen(this.settings);
-                break;
-            //case 2:
-            //    gen = generators.circleGen;
-            //    break;
-            default:
-                this.generator = new generators.SingleEntityGen(this.settings);
-        }
-        //log(fn + ".getGeneratorFromSettings generators: ", generators); // useless holds only this object   {dclamd: 2}
-        log(fn + ".getGeneratorFromSettings this.generator: ", this.generator); 
-    }
-    */
-
     private setGeneratorFromSettings() {
         var genTypes = this.settings.generatorTypes
         switch (this.settings.generator) {
             case genTypes.SINGLE:
                 this.generator = new generators.SingleEntityGen(this.settings);
                 break;
-            case genTypes.DOUBLE:
+                case genTypes.DOUBLE:
                 this.generator = new generators.DoubleEntityGen(this.settings);
                 break;
             default:
                 this.generator = new generators.SingleEntityGen(this.settings);
         }
-        //log(fn + ".getGeneratorFromSettings generators: ", generators); // useless holds only this object   {dclamd: 2}
-        log(fn + ".getGeneratorFromSettings this.generator: ", this.generator); 
-        log(fn + ".getGeneratorFromSettings - this.generator.settings: ", this.generator.settings); 
-        log(fn + ".getGeneratorFromSettings - this.generator.getName(): ", this.generator.getName());
+        log(fn + ".setGeneratorFromSettings generators: ", generators); // useless holds only this object   {dclamd: 2}
+        log(fn + ".setGeneratorFromSettings this.generator: ", this.generator); 
+        //log(fn + ".setGeneratorFromSettings - this.generator.settings: ", this.generator.settings); 
+        //log(fn + ".setGeneratorFromSettings - this.generator.getName(): ", this.generator.getName());
     }
 
 

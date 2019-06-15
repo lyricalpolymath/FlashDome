@@ -3,9 +3,9 @@ const fn = "DoubleEntityGen"
 log(fn)
 
 
-import { GeneratorBase } from "./generatorBase";
+import { Generator } from "./generator"
 
-export default class DoubleEntityGen extends GeneratorBase {
+export default class DoubleEntityGen extends Generator {
 
         public name:String;
 

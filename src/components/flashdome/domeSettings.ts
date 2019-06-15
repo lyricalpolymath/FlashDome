@@ -3,13 +3,18 @@ log(fn + " called")
 
 
 enum generatorTypes {
-    SINGLE = 1,
-    DOUBLE = 2,
-    CIRCLE = 3,
+    SINGLE,
+    DOUBLE,
+    CIRCLE,
     //SPIRAL = 4,
     //FIBONACCI = 5,
     //SCATTER = 6
 }
+
+enum tileTypes { 
+    DOT,      // TODO = maybe put the name of the object here    DOT = "tileDot";
+    PLANE,
+    CUBE }
 
 export const domeSettings = {
     parcel: { 'w': 4, 'h': 4}, 
@@ -17,12 +22,17 @@ export const domeSettings = {
     //center: this.centerPos(this.parcel),
     radius: 2,          
     createFromRadius: true,     // maybe have a switch between create from 
+    
     tilesMin: 1,
     tilesMax: 1,
 
-    generatorTypes: generatorTypes,
-    generator: generatorTypes.DOUBLE,
 
+    // change these
+    generator:  generatorTypes.SINGLE,
+    tile:       tileTypes.PLANE,
+
+    generatorTypes: generatorTypes,
+    tileTypes: tileTypes,
 
 }
 
