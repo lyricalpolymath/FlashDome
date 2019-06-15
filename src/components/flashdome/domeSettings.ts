@@ -1,14 +1,24 @@
 const fn = "domeSettings"
-log(fn + " called")
+//log(fn + " called")
+
+//import { DCLUtils } from "../utils/dclUtils"
 
 
 enum generatorTypes {
-    SINGLE = 1,
-    CIRCLE = 2,
-    //SPIRAL = 3,
-    //FIBONACCI = 4,
-    //SCATTER = 5
+    SINGLE = "Single",
+    DOUBLE = "Double",
+    CIRCLE = "Circle",
+    //SPIRAL = 4,
+    //FIBONACCI = 5,
+    //SCATTER = 6
 }
+
+enum tileTypes { 
+    DOT     = "DotTile",
+    PLANE   = "PlaneTile",
+    //CUBE    = "CubeTile"
+}
+
 
 export const domeSettings = {
     parcel: { 'w': 4, 'h': 4}, 
@@ -16,21 +26,20 @@ export const domeSettings = {
     //center: this.centerPos(this.parcel),
     radius: 2,          
     createFromRadius: true,     // maybe have a switch between create from 
+    
     tilesMin: 1,
     tilesMax: 1,
 
-    generatorTypes: generatorTypes,         // copy the enum, is this even needed?
-    generateWith: 1                         // us this generator. if set to 0 = random
+
+    // change these
+    generator:  generatorTypes.DOUBLE,
+    tile:       tileTypes.PLANE,
+
+    generatorTypes: generatorTypes,
+    tileTypes: tileTypes,
+
 }
 
-
-/* trying with a class that has static public and private methods
-export class domeSettings2 {
-    static parcel:object = { 'w': 4, 'h': 4}
-    static height:number = 10
-    static radius:number = 2
-}
-*/
 
 
 function centerPos(obj) {
