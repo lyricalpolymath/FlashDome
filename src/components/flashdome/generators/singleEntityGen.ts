@@ -6,6 +6,7 @@
 // https://stackoverflow.com/questions/46558215/how-to-resolve-error-ts2351-cannot-use-new-with-an-expression-whose-type-la/46558897
 //import Tile from "../tiles/tile";
 import * as tileType from "../tiles/index"
+//import "../tiles/index"
 
 const fn = "SingleEntityGen"
 log(fn)
@@ -15,9 +16,10 @@ import { Generator } from "./generator";
 
 export default class SingleEntityGen extends Generator {
         
-        constructor(_settings:any){
+        
+        constructor(args: any){
             log(fn + ".constructor")
-            super(_settings);
+            super(args);
             this.name = "SingleEntityGen";
             //log(fn + ".constructor 2 this.settings: ", this.settings);
         }
@@ -26,9 +28,39 @@ export default class SingleEntityGen extends Generator {
             log(fn + ".generateCurve with tileObj: ", tileObj) 
             log(fn + ".generateCurve with this.tileType: ", this.tileType) 
             
-            //var t = new tileObj(); // can't create // Cannot use 'new' with an expression whose type lacks a call or construct signature.
+            // TODO move getParcelCenter() to a Utils object
+            //let pos = this.dome.getParcelCenter()
+            let pos = new Vector3(32,0,32)
 
-            //var t = new this.tileType() // Cannot use 'new' with an expression whose type lacks a call or construct signature.
+            // 1 - Create the tile(s)
+            this.tileType = tileObj;
+            let t1:tileType.Tile = new this.tileType();   // Works even if Typescript complains :) yay!
+            
+            // add it as a children of dome
+            t1.setParent(this.dome);
+            log(fn + ".generateCurve added tile as a children of dome - verifying dome.children: ", this.dome.children)  
+
+            // modify it's properties
+            t1.getComponent(Transform).position = pos;
+            t1.getComponent(Material).albedoColor = Color3.Red()
+
+            // set a sample behavior - simply moves on click
+            t1.addComponent(
+                new OnClick(e => {
+                    log("Tile clicked e: ", e);
+                    log("Tile clicked Vector3: ", Vector3);
+                    log("Tile clicked Object.keys(Vector3): ", Object.keys(Vector3));
+                    log("Tile clicked Object.keys(position): ", Object.keys(t1.getComponent(Transform).position));
+                    log("Tile clicked position.hasOwnProperty('add')): ", t1.getComponent(Transform).position.hasOwnProperty('add'));
+                    log("Tile clicked position.hasOwnProperty('addInPlace')): ", t1.getComponent(Transform).position.hasOwnProperty('addInPlace'));
+                    
+                    //tile.getComponent(Transform).position.set(1,2,1)                      // position set works
+                    //tile.getComponent(Transform).position.add(new Vector3(1,0, 1))        // position .add doesn't
+                    t1.getComponent(Transform).position.addInPlace(new Vector3(1,0, 1))   // addInPlace works too
+
+                })
+            )
+            
 
         }
 }

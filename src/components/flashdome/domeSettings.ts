@@ -29,7 +29,7 @@ export const domeSettings = {
 
     // change these
     generator:  generatorTypes.SINGLE,
-    tile:       tileTypes.PLANE,
+    tile:       tileTypes.DOT,
 
     generatorTypes: generatorTypes,
     tileTypes: tileTypes,
