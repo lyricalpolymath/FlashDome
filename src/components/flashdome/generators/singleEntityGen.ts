@@ -6,13 +6,12 @@
 // https://stackoverflow.com/questions/46558215/how-to-resolve-error-ts2351-cannot-use-new-with-an-expression-whose-type-la/46558897
 //import Tile from "../tiles/tile";
 import * as tileType from "../tiles/index"
-//import "../tiles/index"
+import { Generator } from "./generator";
+import { DCLUtils } from "../../utils/dclUtils"
 
 const fn = "SingleEntityGen"
-log(fn)
+//log(fn)
 
-
-import { Generator } from "./generator";
 
 export default class SingleEntityGen extends Generator {
         
@@ -28,9 +27,9 @@ export default class SingleEntityGen extends Generator {
             log(fn + ".generateCurve with tileObj: ", tileObj) 
             log(fn + ".generateCurve with this.tileType: ", this.tileType) 
             
-            // TODO move getParcelCenter() to a Utils object
-            //let pos = this.dome.getParcelCenter()
-            let pos = new Vector3(32,0,32)
+            // set it at the center of the parcels
+            const pos = DCLUtils.getParcelCenter(this.settings.parcel.w, this.settings.parcel.h);
+            //log(fn + ".generateCurve position from DCLUtils.getParcelCenter(): ", pos)
 
             // 1 - Create the tile(s)
             this.tileType = tileObj;
@@ -61,6 +60,6 @@ export default class SingleEntityGen extends Generator {
                 })
             )
             
-
         }
+
 }

@@ -3,11 +3,12 @@
 
 import { Tile } from "../tiles/tile";
 import { domeSettings } from "../domeSettings"
+import { DCLUtils } from "../../utils/dclUtils"
 
 const fn = "Generator"
-log(fn)
+//log(fn)
 
-//BBNOTE I've added the abstract idea to force subclasses to implement it
+//Abstract classes allow to force subclasses to implement a certain method
 export abstract class Generator {
     
     public settings     :any;
@@ -44,29 +45,11 @@ export abstract class Generator {
     }
     */
 
+
     //DEV simple function to verify which generator has been called
     public getName() { return this.name };
 
 
-    /* sets the tile type either from the settings or by passing it as a variable
-    private setTileType(){
-        var tileTypes = this.settings.tileTypes
-        var tt:any;
-        switch (this.settings.tile) {
-            case tileTypes.DOT:
-                tt = tileTypes.DOT  // pass only the object not the instance of a new DotTile
-                break;
-            case tileTypes.PLANE:
-                tt = tileTypes.PLANE
-                break;
-            default:
-                tt = tileTypes.DOT 
-        }
-        //log(fn + ".setTileType this.tile: ", this.tile); 
-        return tt
-    }
-    */
-
-
-    abstract generateCurve(tile:Tile): void;        // must be implemented in derived classes - https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Classes.md#abstract-classes
+    // abstract methods must be implemented in derived classes - https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Classes.md#abstract-classes
+    abstract generateCurve(tile:Tile): void;        
 }

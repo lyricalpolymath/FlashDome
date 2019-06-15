@@ -2,7 +2,7 @@
 
 
 const fn = "Tile Super"
-log(fn + " called")
+//log(fn + " called")
 
 export class Tile extends Entity {
 
@@ -16,9 +16,9 @@ export class Tile extends Entity {
 
     constructor() {
         super();
-        log(fn + ".constructor this: ", this);
-        log(fn + ".constructor Entity: ", Entity);
-        log(fn + ".constructor this.eventManager: ", this.eventManager);
+        //log(fn + ".constructor this: ", this);
+        //log(fn + ".constructor Entity: ", Entity);
+        //log(fn + ".constructor this.eventManager: ", this.eventManager);
     }
 
 

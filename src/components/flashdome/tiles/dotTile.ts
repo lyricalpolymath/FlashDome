@@ -2,7 +2,7 @@
 
 
 const fn = "DotTile"
-log(fn + " called")
+//log(fn + " called")
 
 
 import { Tile } from "./tile"  //https://stackoverflow.com/questions/46558215/how-to-resolve-error-ts2351-cannot-use-new-with-an-expression-whose-type-la/46558897
@@ -40,6 +40,7 @@ export default class DotTile extends Tile {
         //this.getComponent(Material).albedoColor = Color3.Blue();
 
 
+        //Cilinder
         let cilShape = new CylinderShape()
         cilShape.radiusTop =  1
         cilShape.arc =  180             // ACHTUNG-BUG: this does not work

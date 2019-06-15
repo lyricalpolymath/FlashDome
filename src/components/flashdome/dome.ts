@@ -1,5 +1,5 @@
 const fn = "flashDome"
-log(fn + " called")
+//log(fn + " called")
 
 
 import { domeSettings } from "domeSettings";
@@ -8,8 +8,9 @@ import { domeSettings } from "domeSettings";
 //import "./generators/index";
 import * as generators from "./generators/index";           // import all generators
 import * as tileTypes from "./tiles/index";                 // import all tiles
-//import { Tile } from "./tiles/tile";
+import { DCLUtils } from "../utils/dclUtils"
 
+//import { Tile } from "./tiles/tile";
 //import { GeneratorBase } from "./generators/generatorBase"; // for typing the 
     
 //log(fn + " imported generators: ", generators)                                   // {dclamd: 2}   why?
@@ -21,6 +22,7 @@ log(fn + " imported generators.keys: ", Object.keys(generators))                
 log(fn + " imported tileTypes.keys: ", Object.keys(tileTypes))                   //["Tile", "DotTile", "PlaneTile", "dclamd", "context"]
 //log(fn + " imported tileTypes.DotTile: ", tileTypes.DotTile)                   //undefined > why?
 
+DCLUtils.traceKeys();   // dev purposes - DCL show what you got
 
 
 // Dome extends Entity so that it can have it´s own children 
@@ -37,9 +39,13 @@ export class FlashDome extends Entity {
     constructor(){
         super();
         log(fn + ".constructor called this.settings: ", this.settings);
+        log(fn + ".constructor chosen Generator: ", this.settings.generator);
+        log(fn + ".constructor chosen Tile: ", this.settings.tile);
         
         //log(fn + ".constructor engine: ", Object.keys(engine));  // is engine global? yes ["eventManager", "systems", "entityLists", "addedSystems", "_entities", "_disposableComponents", "_componentGroups", "simpleSystems", "rootEntity"]
-        this.parcelCenter = this.getParcelCenter()
+        //this.parcelCenter = this.getParcelCenter()
+        let p = this.settings.parcel
+        this.parcelCenter = DCLUtils.getParcelCenter( p.w, p.h );
         log(fn + ".constructor called this.center: ", this.parcelCenter);
 
         engine.addEntity(this); // add the dome as an entity
@@ -56,11 +62,12 @@ export class FlashDome extends Entity {
     private generateDome(){
         log(fn + ".generateDome");
 
+
         // 1 - choose dome shape generator (swappable) eg: single, simple circles fibonacci etc
         // get the selected generator from the settings > assigns it to this.generator
         this.setGeneratorFromSettings();  
-        log(fn + ".generateDome this.generator: ", this.generator);
-        log(fn + ".generateDome Chosen Generator: " + this.generator.name);
+        //log(fn + ".generateDome this.generator: ", this.generator);
+        log(fn + ".generateDome Chosen Generator: ", this.generator.name);
 
 
         // 2 - choose tile shape - eg dot (flat cilinder, cube, cone) etc
@@ -81,7 +88,7 @@ export class FlashDome extends Entity {
 
 ///////////////////////////////////////  UTITLITIES
 
-    //TODO put this in a generic DCL utils, other objects will need to know their center
+    /*TODO put this in a generic DCL utils, other objects will need to know their center
     public getParcelCenter(){
         //log(fn + ".getParcelCenter - this.parcelCenter1: ", this.parcelCenter);
         if (!this.parcelCenter) {
@@ -94,6 +101,7 @@ export class FlashDome extends Entity {
         log(fn + ".getParcelCenter - this.parcelCenter2: ", this.parcelCenter);
         return this.parcelCenter;
     }
+    //*/
 
 
     // sets the tile type either from the settings or by passing it as a variable
