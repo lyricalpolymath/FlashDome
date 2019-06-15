@@ -1,3 +1,6 @@
 backups/
 _experiments/
 src/_tests/
+
+#no need to commit bin, it's generated
+bin/game.js  
