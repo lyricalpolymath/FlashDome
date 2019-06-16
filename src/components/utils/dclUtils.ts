@@ -40,11 +40,12 @@ export class DCLUtils {
             log("k:" + k + " - " + engine[k])
         }
         */
-
-
-
+       log("Tile clicked Object.keys(Vector3): ", Object.keys(Vector3));
+       log("Tile clicked Object.keys(Color3): ", Object.keys(Color3));
+       //console.log("Vector3: ", Vector3) // not very useful spits out the function code
     }
     
+
 
 
 }

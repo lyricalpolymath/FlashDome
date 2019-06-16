@@ -8,7 +8,9 @@ const fn = "DotTile"
 import { Tile } from "./tile"  //https://stackoverflow.com/questions/46558215/how-to-resolve-error-ts2351-cannot-use-new-with-an-expression-whose-type-la/46558897
 let tileSettings = {
     position: new Vector3(1,0,1),    // initial position at zero
-    scale: new Vector3(1,0.01,1),    // flatten the cilinder
+    scale: new Vector3(1,0.01,1),    // flatten the cilinder to a thin plane
+    size: new Size(2,2),             // the primitive object has 1m x 1m but the Size object only has 2 variables TODO-maybe create your own
+    radius: 1                        // the cilinder has a default radius of 1 - which makes its width=height=2m
 };
 
 
@@ -18,6 +20,7 @@ export default class DotTile extends Tile {
     constructor() {
         super();
         this.name = fn;
+        this.size = tileSettings.size;
         log(fn + ".constructor this: ", this);
         this.createTile();
     }

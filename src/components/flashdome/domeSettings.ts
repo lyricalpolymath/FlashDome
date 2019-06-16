@@ -5,11 +5,11 @@ const fn = "domeSettings"
 
 
 enum generatorTypes {
-    SINGLE = "Single",
-    DOUBLE = "Double",
-    CIRCLE = "Circle",
+    SINGLE = "Single",          // 4DEV - for testing tile parameters
+    DOUBLE = "Double",          // 4Dev - just to test dynamic generator imports
+    FIBONACCI = "Fibonacci",    // first real dome function
+    //CIRCLE = "Circle",
     //SPIRAL = 4,
-    //FIBONACCI = 5,
     //SCATTER = 6
 }
 
@@ -17,6 +17,7 @@ enum tileTypes {
     DOT     = "DotTile",
     PLANE   = "PlaneTile",
     //CUBE    = "CubeTile"
+    //... import GLTB and use it as a tile
 }
 
 
@@ -32,11 +33,25 @@ export const domeSettings = {
 
 
     // change these
-    generator:  generatorTypes.DOUBLE,
-    tile:       tileTypes.PLANE,
+    generator:  generatorTypes.FIBONACCI,
+    tile:       tileTypes.DOT,
 
     generatorTypes: generatorTypes,
     tileTypes: tileTypes,
+
+    // default DCL logo colors - taken from here https://decentraland.org/images/logo.svg
+    dclColors: {
+        red:    "#FF2D55",
+        orange: "#FC9965",
+        yellow: "#FFBC5B",
+        yellowSun: "#FFC95B",
+        purple: "#A524B3",
+        gradients: {
+            purpleToRed: ["#A524B3", "#FF2D55"],
+            redToYellow: ["#FF2D55", "#FFBC5B"],
+        }
+
+    }
 
 }
 

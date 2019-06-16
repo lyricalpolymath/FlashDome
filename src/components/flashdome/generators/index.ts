@@ -8,3 +8,4 @@ const fn = "generatorIndex"
 export { Generator } from "./generator";
 export { default as SingleEntityGen } from "./singleEntityGen";
 export { default as DoubleEntityGen } from "./doubleEntityGen";
+export { default as FibonacciGen }    from "./fibonacciGen";

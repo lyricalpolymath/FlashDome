@@ -4,7 +4,11 @@ const fn = "PlaneTile";
 
 
 import { Tile } from "./tile" // https://stackoverflow.com/questions/46558215/how-to-resolve-error-ts2351-cannot-use-new-with-an-expression-whose-type-la/46558897
-export const dotTileSettings = {};
+let tileSettings = {
+    position: new Vector3(1,0,1),    // initial position at zero
+    scale: new Vector3(1,0.01,1),    // flatten the cilinder to a thin plane
+    size: new Size(1,1)              // the primitive object has 1m x 1m but the Size object only has 2 variables TODO-maybe create your own
+};
 
 
 // this is basically an Entity and has all of it's properties
@@ -18,18 +22,22 @@ export default class PlaneTile extends Tile {
         this.createTile();
     }
 
-    public createTile(pos:Vector3 = Vector3.Up()){
-        this.addComponent(new Transform({ position: pos, scale: new Vector3(1,0.01,1) }))  // add a transform to the entity
+    public createTile(transform?:Transform ){
+
+        let t:Transform = transform || new Transform({
+            position: tileSettings.position,
+            scale: tileSettings.scale,
+        })
+
+        this.addComponent( t )                  // add a transform to the entity
 
         var shape = new BoxShape()
-        this.addComponent(shape);                // add a shape to the entity
+        this.addComponent(shape);               // add a shape to the entity
         
-        this.addComponent(new Material());          // add the material to color it
-        this.getComponent(Material).albedoColor = Color3.Red();
-        
-        //this.setParent(this);                       // add to the list of childEntities to animate as a whole
+        this.addComponent(new Material());      // add the material to color it
+        //this.getComponent(Material).albedoColor = Color3.Red();
 
-        engine.addEntity(this)                      // add the entity to the engine
+        engine.addEntity(this)                  // add the entity to the engine
 
         return this
     }    

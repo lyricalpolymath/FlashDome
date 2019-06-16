@@ -11,6 +11,10 @@ export class Tile extends Entity {
 
     public name:string;         
     public id:number;       //holds the id of the tile for if we need to call 
+    
+    // Size holds only width(x) and height(z) and it would be missing the depth(y)
+    // since there is currently no way to actually measure these properties, we store them in the tile
+    public size:Size        
 
     //private _position:Vector3
 

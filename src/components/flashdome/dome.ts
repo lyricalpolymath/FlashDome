@@ -62,7 +62,6 @@ export class FlashDome extends Entity {
     private generateDome(){
         log(fn + ".generateDome");
 
-
         // 1 - choose dome shape generator (swappable) eg: single, simple circles fibonacci etc
         // get the selected generator from the settings > assigns it to this.generator
         this.setGeneratorFromSettings();  
@@ -134,9 +133,12 @@ export class FlashDome extends Entity {
             case genTypes.SINGLE:
                 this.generator = new generators.SingleEntityGen(args);
                 break;
-                case genTypes.DOUBLE:
+            case genTypes.DOUBLE:
                 this.generator = new generators.DoubleEntityGen(args);
                 break;
+            case genTypes.FIBONACCI:
+            this.generator = new generators.FibonacciGen(args);
+                    break;    
             default:
                 this.generator = new generators.SingleEntityGen(args);
         }
