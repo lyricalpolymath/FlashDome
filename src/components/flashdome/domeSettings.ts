@@ -8,7 +8,7 @@ enum generatorTypes {
     SINGLE = "Single",          // 4DEV - for testing tile parameters
     DOUBLE = "Double",          // 4Dev - just to test dynamic generator imports
     FIBONACCI = "Fibonacci",    // first real dome function
-    //CIRCLE = "Circle",
+    CIRCLE = "Circle",          // simple circle Circle1Gen
     //SPIRAL = 4,
     //SCATTER = 6
 }
@@ -25,17 +25,20 @@ export const domeSettings = {
     parcel: { 'w': 4, 'h': 4}, 
     height: 10,
     //center: this.centerPos(this.parcel),
-    radius: 2,          
-    createFromRadius: true,     // maybe have a switch between create from 
-    
-    tilesMin: 1,
-    tilesMax: 1,
+
+    // Still unused...each generator has it's own settings
+    //TODO - hook some of the generators parameters to global dome settings - if radius is set here, use this one
+    //radius: 2,          
+    //createFromRadius: true,     // maybe have a switch between create from 
+    //tilesMin: 1,
+    //tilesMax: 1,
 
 
-    // change these
-    generator:  generatorTypes.FIBONACCI,
+    // >>>>>>  change these  <<<<<<<< 
+    generator:  generatorTypes.CIRCLE,
     tile:       tileTypes.DOT,
 
+    // don't touch these 2
     generatorTypes: generatorTypes,
     tileTypes: tileTypes,
 

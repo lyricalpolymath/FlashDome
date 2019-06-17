@@ -1,4 +1,5 @@
-import { convertMessageToObject } from "@decentraland/EthereumController";
+import { domeSettings } from "../flashdome/domeSettings"
+
 
 // a series of utilites for decentraland
 
@@ -12,10 +13,15 @@ export class DCLUtils {
     /**
      * vert simple wrapper that returns the parcels center
      * TODO make it so that it detects the real underlying parcel size...for now there is no way of importing the scene.json file
-     * @param parcelsW 
-     * @param parcelsH 
+     * @param parcelsW? optional
+     * @param parcelsH? optiona
      */
-    public static getParcelCenter(parcelsW:number, parcelsH:number): Vector3 {
+    public static getParcelCenter(parcelsW?:number, parcelsH?:number): Vector3 {
+        // if no parameters are passed automatically retrieve it from domeSettings
+        if (!parcelsW || !parcelsH) {
+            parcelsW = domeSettings.parcel.w
+            parcelsH = domeSettings.parcel.h
+        } 
         const parcelSize = 16                               //meters per parcel
         const cx = (parcelsW/2) * parcelSize;
         const cz = (parcelsH/2) * parcelSize;
@@ -44,7 +50,21 @@ export class DCLUtils {
        log("Tile clicked Object.keys(Color3): ", Object.keys(Color3));
        //console.log("Vector3: ", Vector3) // not very useful spits out the function code
     }
-    
+
+    /* not needed you have the Angle Class
+    https://github.com/decentraland/ecs-reference/blob/master/docs-latest/decentraland-ecs.angle.md
+    Angle.FromDegrees(degreesHere).radians()
+    Angle.FromRadians(radiansHere).degrees()
+
+    public static radiansToDegrees(radians:number) {
+        return radians * (180/ Math.PI);
+    }
+
+    public static degreesToRadians(degrees:number) {
+        return degrees * ( Math.PI / 180);
+    }
+    */
+
 
 
 

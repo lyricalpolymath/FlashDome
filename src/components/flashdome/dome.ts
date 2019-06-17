@@ -48,6 +48,9 @@ export class FlashDome extends Entity {
         this.parcelCenter = DCLUtils.getParcelCenter( p.w, p.h );
         log(fn + ".constructor called this.center: ", this.parcelCenter);
 
+        // position it at the center of the parcel, so every child will be already oriented to the center
+        this.getComponentOrCreate(Transform).position = this.parcelCenter
+
         engine.addEntity(this); // add the dome as an entity
 
         this.settings.dome = this
@@ -137,8 +140,11 @@ export class FlashDome extends Entity {
                 this.generator = new generators.DoubleEntityGen(args);
                 break;
             case genTypes.FIBONACCI:
-            this.generator = new generators.FibonacciGen(args);
-                    break;    
+                this.generator = new generators.FibonacciGen(args);
+                break;   
+            case genTypes.CIRCLE:
+                this.generator = new generators.Circles1Gen(args);
+                break; 
             default:
                 this.generator = new generators.SingleEntityGen(args);
         }

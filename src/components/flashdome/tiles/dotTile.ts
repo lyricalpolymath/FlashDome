@@ -17,16 +17,17 @@ let tileSettings = {
 // this is basically an Entity and has all of it's properties
 export default class DotTile extends Tile {
 
-    constructor() {
+    constructor(_name?:string) {
         super();
-        this.name = fn;
+        this.name = _name || fn;
+        log(fn + ".constructor _name: "+ _name + " - this.name: " + this.name);
         this.size = tileSettings.size;
-        log(fn + ".constructor this: ", this);
+        //log(fn + ".constructor this: ", this);
         this.createTile();
     }
 
     public createTile(transform?:Transform){
-        log(fn + ".createTile this: ", this);
+        //log(fn + ".createTile this: ", this);
   
         // no need to create new Entity since this class is already one
         // set basic Transform if it's not passed as a parameter
@@ -34,9 +35,10 @@ export default class DotTile extends Tile {
                 position: tileSettings.position,
                 scale: tileSettings.scale,
             })
-        
+
         // add a transform to the entity    
         this.addComponent(new Transform( t ))  
+        log(fn + ".createTile position: ", this.getComponent(Transform).position);
 
         // add the material to color it
         this.addComponent(new Material());          
