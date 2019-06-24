@@ -4,6 +4,8 @@
 import * as tileType from "../tiles/index"
 import { Generator } from "./generator";
 import { DCLUtils } from "../../utils/dclUtils"
+import { TileGroup } from "../customCoponents"
+import { default as Groups} from "../../utils/EntityGroups"
 //import log from "decentraland"
 
 const fn = "Circles1Gen"
@@ -19,8 +21,8 @@ let S = {
 
     heightMax: 15,                  // heighest point of the dome
     heightMin: 3,                   // lowest point of the dome
-    heightOffset: -5                // horrible hack to lower the whole dome - TODO change the height algorithm
-    lookAtCenter: new Vector3 (0,0,0),    // all tiles are childs of the dome that is moved at the center...this is for smoothing the dome curve so that tiles look below the ground
+    heightOffset: -5,               // horrible hack to lower the whole dome - TODO change the height algorithm
+    lookAtCenter: new Vector3 (0,-2,0),    // all tiles are childs of the dome that is moved at the center...this is for smoothing the dome curve so that tiles look below the ground
 
     tileScaleMin: 0.2,              // TODO
     tileScaleMax: 0.5,              // TODO
@@ -46,10 +48,10 @@ export default class Circles1Gen extends Generator {
             log(fn + ".generateCurve with tileObj: ", tileObj)
 
             // I need an instance of a tile to get it's size
-            //TODO maybe delete this tile now that you don't need it anymore 
-            // 'delete' cannot be called on an identifier in strict mode.ts(1102) The operand of a delete operator must be a property reference.
+            // but immediateley delete it since you don't need it anymore 
             let t0 = new tileObj();
             let tileSize = t0.size
+            engine.removeEntity (t0)
             log(fn + ".generateCurve tileSize: ", tileSize)
             
             //V1 - set the number of circles vs setting domeRadius and diving by the width and distance
@@ -67,6 +69,7 @@ export default class Circles1Gen extends Generator {
             //loop through the circles
             for (let c=0; c< circles; c++) {
                 
+                ////////////////////////////    TILE POSITIONS
 
                 // TODO use the Angle class https://github.com/decentraland/ecs-reference/blob/master/docs-latest/decentraland-ecs.angle.md
                 //Angle.FromDegrees(degreesHere).radians()
@@ -88,22 +91,41 @@ export default class Circles1Gen extends Generator {
                 log("\n\n\n"+ fn + ".generateCurve Circle: " + c + " with Radius: " + radius + " - tile distance: " + distance)
                 log(fn + ".generateCurve Circle: " + c + "  - angleInc 1: " + angleInc + " -  tilesPerCircle: " + tilesPerCircle)
 
-                // circle height TODO FINISH and clean the algorithm (maybe even changing x and z of a sphere rather than)
-                let circlePercentage = c / circles
-                let heightRange = (S.heightMax - S.heightMin)           // 15-3 = 12
+                // circle height TODO FINISH and clean the algorithm (maybe even changing x and z of a sphere rather than calculating circles and heights)
+                //let heightRange = (S.heightMax - S.heightMin)           // 15-3 = 12
                 //circleH = 15                                          // V1 - fixed height
                 //circleH = S.heightMax - ((heightRange / circles) * c) // V2 - this creates a linear height variation - not right
                 //circleH = Math.sqrt( Math.pow(S.domeRadiusMax + S.heightMin, 2) - Math.pow(radius, 2) ) - S.heightMin // V3   if you put -8 positions it to zero >> make it dependent on C
-                circleH = Math.sqrt( Math.pow(S.domeRadiusMax + S.heightMin, 2) - Math.pow(radius, 2) ) + S.heightOffset
+                circleH = Math.sqrt( Math.pow(S.domeRadiusMax + S.heightMin, 2) - Math.pow(radius, 2) ) + S.heightOffset  //V4 works with a hack
                 
 
+                ////////////////////////////   MATERIAL 
+
+                // unfinished material exploration
                 // circle color - gradient from inner circle to bottom circle
                 const gradient = this.settings.dclColors.gradients.redToYellow
+                let circlePercentage = c / circles
                 let circleColor = Color3.Lerp( Color3.FromHexString(gradient[0]), Color3.FromHexString(gradient[1]), circlePercentage);
+                //let circleColor = Color3.FromHexString(this.settings.dclColors.red)
+                log(fn + ".generateCurve Circle: " + c + "/" + circles + " = circlePercentage: " + circlePercentage + " - circleColor: " + circleColor)
 
                 // assign a commong material to all tiles in a circle so that you don't exceed the limits
                 let circleMaterial = new Material();
                 circleMaterial.albedoColor = circleColor
+                circleMaterial.metallic = 1;
+                circleMaterial.ambientColor = Color3.FromHexString( this.settings.dclColors.yellowSun )
+                //circleMaterial.directIntensity = 1 //default 1
+                //circleMaterial.disableLighting = true;
+                circleMaterial.environmentIntensity = 0.5
+
+                circleMaterial.emissiveColor = Color3.FromHexString( this.settings.dclColors.yellowSun )    // not very emissive
+                circleMaterial.emissiveIntensity = 0.1                                                      // not very emissive
+                //circleMaterial.emissiveTexture = new Texture("materials/dcl_logo.svg")  //doesn´t work
+                //circleMaterial.alpha = 0.5;
+                //const logoTexture = new Texture("materials/dcl_logo.svg")
+                //circleMaterial.albedoTexture = logoTexture
+                
+
 
                 // loop through all the angles for this circle and position the tiles
                 var a = 0
@@ -116,7 +138,7 @@ export default class Circles1Gen extends Generator {
                     let z = (Math.sin(a) * radius) // + center.z
                     let y = circleH                // all tiles inside of a circle will have the same height                           
                     
-                    let countStr = "tile_"+count.toString()
+                    let countStr = "tile_c"+ c + "_" +count.toString()
                     let t = new tileObj(countStr); //BB << maybe this is the one that is generating always the same?
                     //let t = new this.tileType(countStr);
                     
@@ -134,12 +156,15 @@ export default class Circles1Gen extends Generator {
                     // if you use rotation.setEuler it won't work because as Interweaver tought me
                     //  `setEuler` and `lookAt` are both 'overwrite' functions that ignore whatever's in there already.
                     tt.lookAt( targetPos, Vector3.Up());
-                    tt.rotation = tt.rotation.multiply(Quaternion.Euler(-90, 0, 0));
+                    tt.rotation = tt.rotation.multiply(Quaternion.Euler(90, 0, 0));
 
                     // assign one unique material per circle in order to save space > otherwise I get "Unloading scene at 0,0 due to exceeded limits" >>  https://docs.decentraland.org/development-guide/materials/#reuse-materials
                     t.addComponent(circleMaterial) 
 
-                    // useful for debugging - click on a tile to move it and see if there are others undeneath it
+                    // add customComponent to group them by circle
+                    t.addComponent(new TileGroup(c, "circle_"+c, circleMaterial.albedoColor) )
+
+                    /* useful for debugging - click on a tile to move it and see if there are others undeneath it
                     t.addComponent(
                         new OnClick(e => {
                             var ent = this.dome.children[e.entityId]
@@ -148,8 +173,8 @@ export default class Circles1Gen extends Generator {
                             t.getComponent(Transform).position.addInPlace(new Vector3(1,0, 1)) 
                         })
                     )
+                    */
                     
-
                     // set it to a child of the dome
                     t.setParent(this.dome);
                     //engine.addEntity(t); // this automatically done by the new tileObj()
@@ -159,12 +184,20 @@ export default class Circles1Gen extends Generator {
                     //log(fn + ".generateCurve angle:" + a +" - x: " + x + " - z: " + z );
                     
                     count++
-                    lastTile = t
                 }
+
+                // finished creating one of the circles - add these tiles to a group
+                // I need a custom dynamic group class because the current methods don't allow me to create a group for components whose tileGroup.groupN == 0 (or 1, or the circleNumber)
+                // getComponentGroup https://github.com/decentraland/ecs-reference/blob/master/docs-latest/decentraland-ecs.engine.getcomponentgroup.md
+                // getEntitiesWithComponent //https://github.com/decentraland/ecs-reference/blob/master/docs-latest/decentraland-ecs.engine.getentitieswithcomponent.md
+                //this.groups["circle_" + c] = engine.getEntitiesWithComponent("TileGroup.groupN") 
+                let groupName = "group"+c
+                this.groups[groupName] = Groups.createGroupWithComponentsAndCondition("tileGroup", "groupN", "=="+c, groupName )
             
             }
             log(fn + ".generateCurve - DONE GENERATING CURVE this.dome: ", this.dome.children);
             log(fn + ".generateCurve - last children height: " + lastTile.getComponent(Transform).position.y) // possibly use this to offset the whole dome instead of S.heightOffset
+            log(fn + ".generateCurve this.groups: ", this.groups)
             //debugger
         }
 

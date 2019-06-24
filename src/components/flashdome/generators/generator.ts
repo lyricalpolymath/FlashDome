@@ -15,6 +15,7 @@ export abstract class Generator {
     public name         :String;
     protected dome      :Entity;
     public tileType     :Tile;
+    public groups       :any;
 
     /**
      * requires different arguments but I'm using the compact version to simplify adding them
@@ -25,6 +26,7 @@ export abstract class Generator {
      constructor(args: any) {
         this.settings = args.settings || domeSettings
         this.dome = args.dome
+        this.groups = new Array()
         log(fn + ".constructor this dome: ", this.dome);
      }
 
