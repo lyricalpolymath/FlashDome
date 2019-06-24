@@ -20,7 +20,7 @@ export default class DotTile extends Tile {
     constructor(_name?:string) {
         super();
         this.name = _name || fn;
-        log(fn + ".constructor _name: "+ _name + " - this.name: " + this.name);
+        //log(fn + ".constructor _name: "+ _name + " - this.name: " + this.name);
         this.size = tileSettings.size;
         //log(fn + ".constructor this: ", this);
         this.createTile();
@@ -38,7 +38,8 @@ export default class DotTile extends Tile {
 
         // add a transform to the entity    
         this.addComponent(new Transform( t ))  
-        log(fn + ".createTile position: ", this.getComponent(Transform).position);
+        //log(fn + ".createTile position: ", this.getComponent(Transform).position);
+
 
         // add the material to color it - 
         // !!!!!!  NO! let the generator assign a common material otherwise you will incur in Unloading scene at 0,0 due to exceeded limits

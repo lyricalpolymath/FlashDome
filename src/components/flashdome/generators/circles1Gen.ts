@@ -1,4 +1,5 @@
 
+//TODO clean all the algorithms and convert to a geodesic dome rather than hacking together all the positions of the tiles with the double for loop
 
 import * as tileType from "../tiles/index"
 import { Generator } from "./generator";
@@ -13,11 +14,13 @@ let S = {
     radius: 2,                      // initial radius in m
     tileDistance: 0.5,              // compactness of tiles (< 1 tiles overlap, >1 tiles are separated by space )
     circlesDistance: -1,            // compactness of each circle of tiles in m ( < 0 = overlap the tiles)
-    domeRadiusMax: 8,               // maximum Radius (diameter = 2*radius) of the dome
+    domeRadiusMax: 16,               // maximum Radius (diameter = 2*radius) of the dome
     //circles: 3,                     // number of concentric circles
 
     heightMax: 15,                  // heighest point of the dome
     heightMin: 3,                   // lowest point of the dome
+    heightOffset: -5                // horrible hack to lower the whole dome - TODO change the height algorithm
+    lookAtCenter: new Vector3 (0,0,0),    // all tiles are childs of the dome that is moved at the center...this is for smoothing the dome curve so that tiles look below the ground
 
     tileScaleMin: 0.2,              // TODO
     tileScaleMax: 0.5,              // TODO
@@ -58,6 +61,7 @@ export default class Circles1Gen extends Generator {
             let startRadius = radius;
             let center = DCLUtils.getParcelCenter();
             let angleInc, circleH;
+            let lastTile  // horrible hack to get the last children's height
 
         
             //loop through the circles
@@ -84,11 +88,14 @@ export default class Circles1Gen extends Generator {
                 log("\n\n\n"+ fn + ".generateCurve Circle: " + c + " with Radius: " + radius + " - tile distance: " + distance)
                 log(fn + ".generateCurve Circle: " + c + "  - angleInc 1: " + angleInc + " -  tilesPerCircle: " + tilesPerCircle)
 
-                // circle height TODO FINISH and inverse the heights
+                // circle height TODO FINISH and clean the algorithm (maybe even changing x and z of a sphere rather than)
                 let circlePercentage = c / circles
-                //let heightRange = (S.heightMax - S.heightMin)
-                //circleH = ((heightRange / circles) * c) + S.heightMin
-                circleH = 15
+                let heightRange = (S.heightMax - S.heightMin)           // 15-3 = 12
+                //circleH = 15                                          // V1 - fixed height
+                //circleH = S.heightMax - ((heightRange / circles) * c) // V2 - this creates a linear height variation - not right
+                //circleH = Math.sqrt( Math.pow(S.domeRadiusMax + S.heightMin, 2) - Math.pow(radius, 2) ) - S.heightMin // V3   if you put -8 positions it to zero >> make it dependent on C
+                circleH = Math.sqrt( Math.pow(S.domeRadiusMax + S.heightMin, 2) - Math.pow(radius, 2) ) + S.heightOffset
+                
 
                 // circle color - gradient from inner circle to bottom circle
                 const gradient = this.settings.dclColors.gradients.redToYellow
@@ -107,7 +114,7 @@ export default class Circles1Gen extends Generator {
                     //log ("\n\n" + fn + "generateCurve a: " + a)
                     let x = (Math.cos(a) * radius) // + center.x  // offset to center not needed because I moved dome
                     let z = (Math.sin(a) * radius) // + center.z
-                    let y = circleH                // 10                           
+                    let y = circleH                // all tiles inside of a circle will have the same height                           
                     
                     let countStr = "tile_"+count.toString()
                     let t = new tileObj(countStr); //BB << maybe this is the one that is generating always the same?
@@ -118,7 +125,7 @@ export default class Circles1Gen extends Generator {
 
                     // the target position is not the center of the parcel only because every tile is a children of the dome Entity
                     // that has been moved to the center. TODO - find a universal way to do localToGlobal and GlobalToLocal
-                    let targetPos = new Vector3(0,0,0)   // DCLUtils.getParcelCenter()
+                    let targetPos = S.lookAtCenter || new Vector3(0,0,0)   // DCLUtils.getParcelCenter()
                     
                     // face the lower side to the target (center of the scene)
                     // Interweaver solution - if you only use lookAt it will always point the main forward vector to the target (the side of the cylinder or tile)
@@ -129,13 +136,7 @@ export default class Circles1Gen extends Generator {
                     tt.lookAt( targetPos, Vector3.Up());
                     tt.rotation = tt.rotation.multiply(Quaternion.Euler(-90, 0, 0));
 
-                    
-                    //log(fn + ".generateCurve - this.settings: ", this.settings)
-                    // //this.settings.dclColors.gradients.purpleToRed;
-                    // let percentage = (a/2*Math.PI) //(a / angles)
-                    //t.getComponent(Material).albedoColor = Color3.Lerp( Color3.FromHexString(gradient[0]), Color3.FromHexString(gradient[1]), percentage);
-                    //t.getComponent(Material).albedoColor = circleColor // Color3.FromHexString( this.settings.dclColors.red)
-                    // to save space > otherwise I get "Unloading scene at 0,0 due to exceeded limits" >>  https://docs.decentraland.org/development-guide/materials/#reuse-materials
+                    // assign one unique material per circle in order to save space > otherwise I get "Unloading scene at 0,0 due to exceeded limits" >>  https://docs.decentraland.org/development-guide/materials/#reuse-materials
                     t.addComponent(circleMaterial) 
 
                     // useful for debugging - click on a tile to move it and see if there are others undeneath it
@@ -158,12 +159,13 @@ export default class Circles1Gen extends Generator {
                     //log(fn + ".generateCurve angle:" + a +" - x: " + x + " - z: " + z );
                     
                     count++
+                    lastTile = t
                 }
             
             }
-            log(fn + ".generateCurve - DONE GENERATING CURVE this.dome: ", this.dome);
+            log(fn + ".generateCurve - DONE GENERATING CURVE this.dome: ", this.dome.children);
+            log(fn + ".generateCurve - last children height: " + lastTile.getComponent(Transform).position.y) // possibly use this to offset the whole dome instead of S.heightOffset
             //debugger
-            
         }
 
 
