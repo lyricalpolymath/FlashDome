@@ -19,6 +19,7 @@ export default class PlaneTile extends Tile {
         //log(fn + ".constructor this: ", this);
         //log(fn + ".constructor Entity: ", Entity);
         this.name = fn;
+        this.size = tileSettings.size;
         this.createTile();
     }
 

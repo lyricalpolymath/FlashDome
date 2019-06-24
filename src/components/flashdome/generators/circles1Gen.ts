@@ -1,30 +1,9 @@
 
-/**
- * Template of the basic things you need to use for creating a generator 
- * 
- * - duplicate this file, 
- * - change the fn string and class name
- * - create the code you want inside of generateCurve
- * 
- * xx 1- add to /src/flashdome/generators/index.ts this
- * export { default as TemplateGen }    from "./generator_template";  // change appropriate class name and file
- * 
- * - in /src/flashdome/domeSettings.ts add it to the generatorTypes enum
- * generatorTypes {  TEMPLATE = "Template"  }  //change with appropriate name
- * 
- * - remember to activate it in 
- * domeSettings.generator:  generatorTypes.TEMPLATE,
- * 
- * - in /src/flashdome/dome.ts setGeneratorFromSettings() add a case for this generator
- * case genTypes.TEMPLATE:
- *      this.generator = new generators.TemplateGen(args);      //change with appropriate names
- *      break; 
- */
-
 
 import * as tileType from "../tiles/index"
 import { Generator } from "./generator";
 import { DCLUtils } from "../../utils/dclUtils"
+//import log from "decentraland"
 
 const fn = "Circles1Gen"
 //log(fn)
@@ -32,8 +11,11 @@ const fn = "Circles1Gen"
 // Generator Settings as a simple editable object
 let S = {
     radius: 2,                      // initial radius in m
-    circles: 1,                     // number of concentric circles
-    tileDistance: 1                 // compactness of tiles (< 1 tiles overlap, >1 tiles are separated by space )
+    circles: 3,                     // number of concentric circles
+    tileDistance: 0,                // compactness of tiles (< 1 tiles overlap, >1 tiles are separated by space )
+    
+    tileScaleMin: 0.2,              // 
+    tileScaleMax: 0.5,              // 
 
     // used by Fibo
     //G: goldenRatio,                 // Golden Ration 
@@ -80,14 +62,20 @@ export default class Circles1Gen extends Generator {
                 // this distance on the circle, creates an isosceles triangle because two sides are the radius, 
                 // and the angle between them can be solved with the cosine formula https://en.wikipedia.org/wiki/Law_of_cosines 
                 // solving for the angle alpha as here https://math.stackexchange.com/questions/185829/how-do-you-find-an-angle-between-two-points-on-the-edge-of-a-circle
-                angleInc = Math.acos( (Math.pow(2*radius, 2)-Math.pow(tileSize.width, 2)) / Math.pow(2*radius, 2) )
-                log("\n\n"+fn + ".generateCurve Circle: " + c + " with Radius: " + radius + " - these are the angles")
-                log(fn + ".generateCurve Circle: " + c + "  - num angleInc 1: " + angleInc)
+                let distance = 2*tileSize.width + (tileSize.width * S.tileDistance)
+                let distance2 = Math.pow(distance, 2)
+                let r2 = Math.pow(2*radius, 2) 
+                angleInc = Math.acos( (r2 - distance2) / r2 )
+                let tilesPerCircle = Math.ceil((2*Math.PI)/angleInc)
+                /// now round the angleInc to floored number of dots per circle
+                angleInc = (2*Math.PI)/tilesPerCircle;
+                log("\n\n"+fn + ".generateCurve Circle: " + c + " with Radius: " + radius + " - distance: " + distance)
+                log(fn + ".generateCurve Circle: " + c + "  - angleInc 1: " + angleInc + " -  tilesPerCircle: " + tilesPerCircle)
 
                 // now that we know the angle increment, correct it by the factor in S.tiledistance
                 // < 1 will compact and overla elements,  and >1 will distance the elements
-                angleInc *= S.tileDistance;
-                log(fn + ".generateCurve Circle: " + c + "  - num angleInc 2: " + angleInc)
+                //angleInc *= S.tileDistance;
+                //log(fn + ".generateCurve Circle: " + c + "  - angleInc 2: " + angleInc)
 
                 // with the desired angleDistance calculate how many angles or iterations there will be in this circle
                 //angles = (360 / tileSize.width) * S.tileDistance; //old and wrong
@@ -99,25 +87,41 @@ export default class Circles1Gen extends Generator {
                 // loop through all the angles for this circle and position the tiles
                 //for (let a = 0; a <= angles; a++) { // a++ is wrong as I need to increment by angleInc
                 var a = 0
-                var count = 0
-                while (a < 2*Math.PI) {
+                var count = 1
+                //while (a < 2*Math.PI) {       /// this works to clearly separate the angles
+                 while (count <= tilesPerCircle) {   
                     
                     log ("\n\n" + fn + "generateCurve a: " + a)
                     let x = (Math.cos(a) * radius) // + center.x  // offset to center not needed because I moved dome
                     let z = (Math.sin(a) * radius) // + center.z
-                    let y = 0.5;//1.2 *a//0.1                           
+                    let y = 10//0.5;//1.2 *a//0.1                           
                     //debugger
 
                     let countStr = "tile_"+count.toString()
                     //var t = new tileObj(countStr); //BB << maybe this is the one that is generating always the same?
                     let t = new this.tileType(countStr);
                     //t.getComponent(Transform).position.set(x,y,z) //is putting everything in the same xyz
-                    t.getComponent(Transform).position = new Vector3(x,y,z)
+                    let tt = t.getComponent(Transform)
+                    tt.position = new Vector3(x,y,z)
+
+                    // the target position is not the center of the parcel only because every tile is a children of the dome Entity
+                    // that has been moved to the center. TODO - find a universal way to do localToGlobal and GlobalToLocal
+                    let targetPos = new Vector3(0,0,0)   // DCLUtils.getParcelCenter()
+                    
+                    // face the lower side to the target (center of the scene)
+                    // Interweaver solution - if you only use lookAt it will always point the main forward vector to the target (the side of the cylinder or tile)
+                    // in order to point the lower face of the tile, you need to also rotate the main face (in this case 90 degrees around either the X axis)
+                    // but you need to do it after the lookAt transformation AND ADDING to it...not substituting it
+                    // if you use rotation.setEuler it won't work because as Interweaver tought me
+                    //  `setEuler` and `lookAt` are both 'overwrite' functions that ignore whatever's in there already.
+                    tt.lookAt( targetPos, Vector3.Up());
+                    tt.rotation = tt.rotation.multiply(Quaternion.Euler(90, 0, 0));
+
                     //debugger
 
                     //log(fn + ".generateCurve - this.settings: ", this.settings)
                     const gradient = this.settings.dclColors.gradients.purpleToRed;
-                    let percentage = (a / angles)
+                    let percentage = (a/2*Math.PI) //(a / angles)
                     t.getComponent(Material).albedoColor = Color3.Lerp( Color3.FromHexString(gradient[0]), Color3.FromHexString(gradient[1]), percentage);
                     //t.getComponent(Material).albedoColor = Color3.FromHexString( this.settings.dclColors.red)
                     //t.getComponent(Material).albedoColor = Color3.Red()
@@ -142,10 +146,12 @@ export default class Circles1Gen extends Generator {
                     count++
                     //debugger
                 }
+                // increase the radius for the next circle
+                radius += distance
             
             }
             log(fn + ".generateCurve - DONE GENERATING CURVE this.dome: ", this.dome);
-            debugger
+            //debugger
             
         }
 
