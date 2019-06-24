@@ -40,8 +40,9 @@ export default class DotTile extends Tile {
         this.addComponent(new Transform( t ))  
         log(fn + ".createTile position: ", this.getComponent(Transform).position);
 
-        // add the material to color it
-        this.addComponent(new Material());          
+        // add the material to color it - 
+        // !!!!!!  NO! let the generator assign a common material otherwise you will incur in Unloading scene at 0,0 due to exceeded limits
+        //this.addComponent(new Material());          
         //this.getComponent(Material).albedoColor = Color3.Blue();
 
 
