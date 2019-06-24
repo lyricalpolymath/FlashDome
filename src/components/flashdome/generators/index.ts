@@ -4,10 +4,13 @@
 const fn = "generatorIndex"
 //log(fn)
 
-// there is no need to import them first
+// for dev purposes - not very useful in the final product
 export { Generator } from "./generator";
 export { default as SingleEntityGen } from "./singleEntityGen";
 export { default as DoubleEntityGen } from "./doubleEntityGen";
-export { default as FibonacciGen }    from "./fibonacciGen"; 
+
+// the main one that is currently workign to generate a dome
 export { default as Circles1Gen }    from "./circles1Gen"; 
-    
+
+// UNFINISHED - do not use yet
+export { default as FibonacciGen }    from "./fibonacciGen"; 

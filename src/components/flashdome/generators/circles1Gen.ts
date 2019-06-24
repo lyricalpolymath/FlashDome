@@ -6,6 +6,7 @@ import { Generator } from "./generator";
 import { DCLUtils } from "../../utils/dclUtils"
 import { TileGroup } from "../customCoponents"
 import { default as Groups} from "../../utils/EntityGroups"
+import * as systems from "../systems/index";
 //import log from "decentraland"
 
 const fn = "Circles1Gen"
@@ -43,7 +44,7 @@ export default class Circles1Gen extends Generator {
         }
 
 
-        generateCurve(tileObj:tileType.Tile) {
+        public generateCurve(tileObj:tileType.Tile) {
             this.tileType = tileObj;
             log(fn + ".generateCurve with tileObj: ", tileObj)
 
@@ -195,64 +196,29 @@ export default class Circles1Gen extends Generator {
                 this.groups[groupName] = Groups.createGroupWithComponentsAndCondition("tileGroup", "groupN", "=="+c, groupName )
             
             }
+            // done creating all tiles, create a group with ALL tiles
+            this.groups["allTiles"] = engine.getComponentGroup(TileGroup);
+
             log(fn + ".generateCurve - DONE GENERATING CURVE this.dome: ", this.dome.children);
-            log(fn + ".generateCurve - last children height: " + lastTile.getComponent(Transform).position.y) // possibly use this to offset the whole dome instead of S.heightOffset
             log(fn + ".generateCurve this.groups: ", this.groups)
+            this.addSystems()
+            
+        }
+
+
+        //TODO find a way to do this dynamically and activate or disable certain systems through the settings
+        public addSystems() {
+            log(fn + ".addSystems")
+            
+            var g0 = this.groups["group0"]
+            var g1 = this.groups["group1"]
             //debugger
+            //engine.addSystem ( new systems.GroupRotator( this.groups["allTiles"], false ) ) // this works to flip all tiles
+            //engine.addSystem ( new systems.GroupRotator("group0", true) )                   //  this works to flip a single circle
+            //engine.addSystem ( new systems.GroupRotator("group10", true) )
+            engine.addSystem ( new systems.GroupRotator( this.dome , true) )
+            //*/
         }
 
 
-        /* V1 incomplete
-        generateCurve(tileObj:tileType.Tile) {
-            this.tileType = tileObj;
-            log(fn + ".generateCurve with tileObj: ", tileObj)
-
-            let circles = S.circles                       // number of concentric circles
-            let radius = S.radius || this.settings.radius // starting radius of the circle in m
-            let center = DCLUtils.getParcelCenter();
-            let angles, angle, x,y,z;
-            let t:tileType.Tile;
-
-            // I need an instance of a tile to get it's size
-            t = new tileObj();
-            let tileSize = t.size
-            log(fn + ".generateCurve tileSize: ", tileSize)
-            //TODO maybe delete this tile now that you don't need it anymore 
-            // 'delete' cannot be called on an identifier in strict mode.ts(1102) The operand of a delete operator must be a property reference.
-
-            //loop through the circles
-            for (let c=1; c<= circles; c++) {
-
-                //divide the circle in N angles based on compactness
-                //Achtung: this works for round tiles whose width == heigt - TODO rethink for non symmetric tiles
-                angles = (360 / tileSize.width) * S.tileDistance;
-                log(fn + ".generateCurve Circle: " + c + "  - num angles: " + angles)
-
-                // loop through all the angles for this circle and position the tiles
-                for (let a = 0; a <= angles; a++) {
-                    //TODO - offset it around the center of the parcel
-                    x = (Math.cos(angle) * radius) + center.x
-                    z = (Math.sin(angle) * radius) + center.z
-                    y = 0.1                           
-                    debugger
-                    t = new tileObj();
-                    t.getComponent(Transform).position.set(x,y,z)
-
-                    //t.getComponent(Material).albedoColor = Color3.Lerp( Color3.FromHexString(gradientRY[0]), Color3.FromHexString(gradientRY[1]), percentage);
-                    //t.getComponent(Material).albedoColor = Color3.FromHexString( this.settings.dclColors.red)
-
-                    // set it to a child of the dome
-                    t.setParent(this.dome);
-                    //engine.addEntity(t); // this automatically done by the new tileObj()
-
-                    // done - increment angle for the next round and tile
-                    a += angles 
-                    log(fn + ".generateCurve angle:" + a +" - x: " + x + " - z: " + z );
-                }
-            
-            }
-            log(fn + ".generateCurve - DONE GENERATING CURVE");
-            
-        }
-        */
 }            

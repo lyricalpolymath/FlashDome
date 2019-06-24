@@ -4,6 +4,7 @@
 import { Tile } from "../tiles/tile";
 import { domeSettings } from "../domeSettings"
 import { DCLUtils } from "../../utils/dclUtils"
+import * as systems from "../systems/index";
 
 const fn = "Generator"
 //log(fn)

@@ -1,5 +1,5 @@
 
-/// Fibonacci Generator  - TODO - finish
+/// Fibonacci Generator - UNFINISHED do not use yet
 //TODO - right now x is increasing by very little amounts and z is always 0
 
 
