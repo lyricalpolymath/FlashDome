@@ -13,17 +13,16 @@
 import { default as Groups} from "../../utils/EntityGroups"
 
 export abstract class GroupAwareSystem implements ISystem {
-//export class GroupAwareSystem /*implements ISystem*/ {   
 
     public group = {}
 
     constructor (_group:string | {}) {
-
+        //debugger
         if (typeof _group == "string") {
             // group created with EntityGroups
             this.group["entities"] =  Groups.getGroup(_group)
 
-        } else if (!this.group.entities) {
+        } else if (!_group.entities) {
             // Single Entity:  
             // if it's an object but doesn't have the entities property it's likely this is a single Entity
             this.group["entities"] = [_group]; 

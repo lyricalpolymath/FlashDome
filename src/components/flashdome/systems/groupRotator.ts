@@ -56,7 +56,6 @@ export class GroupRotator extends GroupAwareSystem implements ISystem {
     
     update( dt: number ) {
         
-        
         for (let entity of this.group.entities) { 
             const transform = entity.getComponent(Transform)
             //let rotAmount = dt * this.speed * this.direction  // this works for direction = 1 but not -1 

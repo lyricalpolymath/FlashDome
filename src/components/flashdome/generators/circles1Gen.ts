@@ -1,5 +1,7 @@
 
-//TODO clean all the algorithms and convert to a geodesic dome rather than hacking together all the positions of the tiles with the double for loop
+// TODO - BUG why it doesn't work anymore with tiles that have size 1,1 (like PlaneTile) - I've cheated and put that fake size in PlaneTile to make it work 
+//      // it's mainly the size that is causing problems... small tileSize numbers < 1.7 will cause infinity in some fractions that use it
+// TODO clean all the algorithms and convert to a geodesic dome rather than hacking together all the positions of the tiles with the double for loop
 
 import * as tileType from "../tiles/index"
 import { Generator } from "./generator";
@@ -24,9 +26,11 @@ let S = {
     heightOffset: -5,               // horrible hack to lower the whole dome - TODO change the height algorithm
     lookAtCenter: new Vector3 (0,-2,0),    // all tiles are childs of the dome that is moved at the center...this is for smoothing the dome curve so that tiles look below the ground
 
-    // System parameters
+    // System parameters            //goo combos (dome, tile): (5, 50)
     rotSpeedDome: 5,                // speed of rotation of the whole dome
-    rotSpeedTile: 50               // speed of rotation of each single tile
+    rotSpeedTile: 50,               // speed of rotation of each single tile
+    alternateRotCircles: true,     // rotate each circle of tiles in a different direction
+    proximitySensor: false          // ***** enable that each tile responds to user presence ***** UNFINISHED
 
 
     tileScaleMin: 0.2,              // TODO
@@ -62,8 +66,10 @@ export default class Circles1Gen extends Generator {
             log(fn + ".generateCurve tileSize: ", tileSize)
             
             //V1 - set the number of circles vs setting domeRadius and diving by the width and distance
-            //let circles = S.circles                       // number of concentric circles V1
-            let circles = S.domeRadiusMax / (tileSize.width + S.circlesDistance)
+            // Achtung there is a condition when tileSize.width (= 1) + S.circlesDistance (-1) that (circles / 0) will be infinity
+            let circleLength = (tileSize.width + S.circlesDistance)
+            if (circleLength == 0) circleLength = tileSize.width + (0.1 * S.circlesDistance)    // solve infinity
+            let circles = Math.round(S.domeRadiusMax / circleLength)//(tileSize.width + S.circlesDistance)
             this.circles = circles;
             log(fn + ".generateCurve circles in dome :" + circles)
 
@@ -91,14 +97,16 @@ export default class Circles1Gen extends Generator {
                 // solving for the angle alpha as here https://math.stackexchange.com/questions/185829/how-do-you-find-an-angle-between-two-points-on-the-edge-of-a-circle
                 let distance = tileSize.width + (tileSize.width * (S.tileDistance/2) )
                 let distance2 = Math.pow(distance, 2)
-                radius = startRadius + ((tileSize.width + S.circlesDistance) * c)     // adapt the radius to the given circle
+                //radius = startRadius + ((tileSize.width + S.circlesDistance) * c)     // adapt the radius to the given circle
+                radius = startRadius + (circleLength * c)
+
                 let r2 = Math.pow(2*radius, 2)            
                 angleInc = Math.acos( (r2 - distance2) / r2 )            // the first angleInc is ideal but we want an int number of tiles in a circle, not a float
                 let tilesPerCircle = Math.ceil((2*Math.PI)/angleInc)     // round to a full number of tile per circle
                 angleInc = (2*Math.PI)/tilesPerCircle;                   // now find the angleInc to rounded number of dots per circle
                 log("\n\n\n"+ fn + ".generateCurve Circle: " + c + " with Radius: " + radius + " - tile distance: " + distance)
                 log(fn + ".generateCurve Circle: " + c + "  - angleInc 1: " + angleInc + " -  tilesPerCircle: " + tilesPerCircle)
-
+                
                 // circle height TODO FINISH and clean the algorithm (maybe even changing x and z of a sphere rather than calculating circles and heights)
                 //let heightRange = (S.heightMax - S.heightMin)           // 15-3 = 12
                 //circleH = 15                                          // V1 - fixed height
@@ -215,30 +223,33 @@ export default class Circles1Gen extends Generator {
 
         //TODO find a way to do this dynamically and activate or disable certain systems through the settings
         public addSystems() {
+            log(fn + ".addSystems generatorSettings: ", S) 
+            log(fn + ".addSystems domeSettings: ", this.dome)
             log(fn + ".addSystems params rotSpeedDome: " + S.rotSpeedDome + " \t - rotSpeedTile: " + S.rotSpeedTile)
             
             // rotate the whole dome super slow S.rotSpeedDome
-            engine.addSystem ( new systems.GroupRotator( this.dome , true, S.rotSpeedDome , Vector3.Up()) )
-
-            /* experiment rotate each circle in different directions
-            let dir:boolean = false
-            for (let c = 0; c < this.circles; c++ ) {
-                let g = "group"+c       //use the group Name rather than the group object     //this.groups["group"+c];
-                dir = !dir              //at each circle rotate in a different direction
-                let priority = 1 * c;
-                engine.addSystem ( new systems.GroupRotator( g, dir, S.rotSpeedTile, new Vector3(1,0,1)),  ) //Vector3.Forward() ) ) // this works to flip all tiles  
+            if (S.rotSpeedDome > 0 ) {
+                engine.addSystem ( new systems.GroupRotator( this.dome , false, S.rotSpeedDome , Vector3.Up()) )
             }
-            //*/
             
-            // tests
-            //engine.addSystem ( new systems.GroupRotator( this.groups["allTiles"], false ) ) // this works to flip all tiles
-            //engine.addSystem ( new systems.GroupRotator("group0", true) )                   //  this works to flip a single circle
-            //engine.addSystem ( new systems.GroupRotator("group12", false, S.rotSpeedTile, Vector3.Forward()) )
-            //engine.addSystem ( new systems.GroupRotator("group13", true, S.rotSpeedTile, Vector3.Forward()) )
-            //engine.addSystem ( new systems.GroupRotator("group14", true, S.rotSpeedTile, Vector3.Forward()) )
-            //engine.addSystem ( new systems.GroupRotator("group15", false, 150, Vector3.Forward() )//new Vector3(1,0,1)) )
+            //* experiment rotate each circle in different directions
+            if (S.alternateRotCircles == true) {
+                    let dir:boolean = false
+                for (let c = 0; c < this.circles; c++ ) {
+                    let g = "group"+c       //use the group Name rather than the group object     //this.groups["group"+c];
+                    dir = !dir              //at each circle rotate in a different direction
+                    let priority = 1 * c;
+                    engine.addSystem ( new systems.GroupRotator( g, dir, S.rotSpeedTile, new Vector3(1,0,1)),  ) //Vector3.Forward() ) ) // this works to flip all tiles  
+                }
+            }
             
-            //*/
+            // TODO - Interactive System : follow the camera
+            if (S.proximitySensor) {
+                let g = engine.getComponentGroup(TileGroup)
+                engine.addSystem ( new systems.ProximityScaler (g) )
+            }
+            
+
         }
 
 
