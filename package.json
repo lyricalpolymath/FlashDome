@@ -13,5 +13,7 @@
   "devDependencies": {
     "decentraland-ecs": "^6.1.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "decentraland": "^3.2.0"
+  }
 }

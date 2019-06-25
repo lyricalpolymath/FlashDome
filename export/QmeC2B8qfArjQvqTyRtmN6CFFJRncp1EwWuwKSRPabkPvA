@@ -1,0 +1,21 @@
+
+
+/////////// Trying to make scene.json importable
+
+1 - edited tsconfig.json to include in the "include" field also the scene.json
+followed typescript compiler options
+https://www.typescriptlang.org/docs/handbook/tsconfig-json.html
+https://www.typescriptlang.org/docs/handbook/compiler-options.html
+
+    as it originally was
+        "include": ["src/**/*.ts"],
+    modified by me to include scene.json
+        "include": ["src/**/*.ts", "scene.json"],
+
+//  I tried to add this to  the tsconfig.json > "compileroptions"
+    but it didn't work
+    "resolveJsonModule": true
+
+// tried to add this to the top of game.ts but it didn't work
+    import * as scene from  "scene.json"
+    log("BB scene:", scene);        
