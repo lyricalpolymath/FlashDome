@@ -28,7 +28,7 @@ export class GroupRotator extends GroupAwareSystem implements ISystem {
 
     /**
      * 
-     * @param _group either a string, a single Entity or a group of entities
+     * @param _group either a string for a group name, a single Entity or a group of entities
      * @param clockwise 
      * @param _speed 
      * @param _axis 
@@ -39,21 +39,34 @@ export class GroupRotator extends GroupAwareSystem implements ISystem {
         log(fn + ". constructor this.group: ", this.group);
 
         if (_speed) this.speed = _speed
-        if (_axis)  this.axis  = _axis
+        if (_axis)  this.axis  = _axis 
+
+        // to change the direction you need to switch the rotation axis upside down with Vector3.negate()
         this.direction = ( !clockwise ) ? -1 : 1;
+        if (this.direction == -1) this.axis = _axis.negate()
+        //log(fn + ".constructor   this.direction: ", this.direction)
     }
+
+    /* to run once when you activate the system
+    activate () {
+
+    }
+    */
 
     
     update( dt: number ) {
-        //log(fn + " update dt " + dt + " this.group: ", this.group)
+        
         
         for (let entity of this.group.entities) { 
             const transform = entity.getComponent(Transform)
-            let rotAmount = dt * this.speed * this.direction
-            
-            let axisVector = Vector3.Forward() // flip the tile 
+            //let rotAmount = dt * this.speed * this.direction  // this works for direction = 1 but not -1 
+            let rotAmount = dt * this.speed
+            let rotAxis = this.axis
 
-            transform.rotate(axisVector, rotAmount)
+            //log(fn + " update dt " + dt + " rotAmount: ", rotAmount)
+            //debugger
+
+            transform.rotate(rotAxis, rotAmount)
             
           }
     }

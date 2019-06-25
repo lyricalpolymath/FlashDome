@@ -7,7 +7,6 @@ import { DCLUtils } from "../../utils/dclUtils"
 import { TileGroup } from "../customCoponents"
 import { default as Groups} from "../../utils/EntityGroups"
 import * as systems from "../systems/index";
-//import log from "decentraland"
 
 const fn = "Circles1Gen"
 //log(fn)
@@ -25,6 +24,11 @@ let S = {
     heightOffset: -5,               // horrible hack to lower the whole dome - TODO change the height algorithm
     lookAtCenter: new Vector3 (0,-2,0),    // all tiles are childs of the dome that is moved at the center...this is for smoothing the dome curve so that tiles look below the ground
 
+    // System parameters
+    rotSpeedDome: 5,                // speed of rotation of the whole dome
+    rotSpeedTile: 50               // speed of rotation of each single tile
+
+
     tileScaleMin: 0.2,              // TODO
     tileScaleMax: 0.5,              // TODO
 
@@ -37,6 +41,8 @@ let S = {
 
 export default class Circles1Gen extends Generator {
         
+        public circles: number         
+
         constructor(args: any){
             super(args);
             this.name = fn;
@@ -58,6 +64,7 @@ export default class Circles1Gen extends Generator {
             //V1 - set the number of circles vs setting domeRadius and diving by the width and distance
             //let circles = S.circles                       // number of concentric circles V1
             let circles = S.domeRadiusMax / (tileSize.width + S.circlesDistance)
+            this.circles = circles;
             log(fn + ".generateCurve circles in dome :" + circles)
 
             let radius = S.radius || this.settings.radius // starting radius of the circle in m
@@ -208,15 +215,29 @@ export default class Circles1Gen extends Generator {
 
         //TODO find a way to do this dynamically and activate or disable certain systems through the settings
         public addSystems() {
-            log(fn + ".addSystems")
+            log(fn + ".addSystems params rotSpeedDome: " + S.rotSpeedDome + " \t - rotSpeedTile: " + S.rotSpeedTile)
             
-            var g0 = this.groups["group0"]
-            var g1 = this.groups["group1"]
-            //debugger
+            // rotate the whole dome super slow S.rotSpeedDome
+            engine.addSystem ( new systems.GroupRotator( this.dome , true, S.rotSpeedDome , Vector3.Up()) )
+
+            /* experiment rotate each circle in different directions
+            let dir:boolean = false
+            for (let c = 0; c < this.circles; c++ ) {
+                let g = "group"+c       //use the group Name rather than the group object     //this.groups["group"+c];
+                dir = !dir              //at each circle rotate in a different direction
+                let priority = 1 * c;
+                engine.addSystem ( new systems.GroupRotator( g, dir, S.rotSpeedTile, new Vector3(1,0,1)),  ) //Vector3.Forward() ) ) // this works to flip all tiles  
+            }
+            //*/
+            
+            // tests
             //engine.addSystem ( new systems.GroupRotator( this.groups["allTiles"], false ) ) // this works to flip all tiles
             //engine.addSystem ( new systems.GroupRotator("group0", true) )                   //  this works to flip a single circle
-            //engine.addSystem ( new systems.GroupRotator("group10", true) )
-            engine.addSystem ( new systems.GroupRotator( this.dome , true) )
+            //engine.addSystem ( new systems.GroupRotator("group12", false, S.rotSpeedTile, Vector3.Forward()) )
+            //engine.addSystem ( new systems.GroupRotator("group13", true, S.rotSpeedTile, Vector3.Forward()) )
+            //engine.addSystem ( new systems.GroupRotator("group14", true, S.rotSpeedTile, Vector3.Forward()) )
+            //engine.addSystem ( new systems.GroupRotator("group15", false, 150, Vector3.Forward() )//new Vector3(1,0,1)) )
+            
             //*/
         }
 

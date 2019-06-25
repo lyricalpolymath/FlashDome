@@ -1,6 +1,6 @@
 // I Needed a way to create dynamic groups 
 // to group entites created at each round of a for loop
-// and since the default methods don't allow to intentionally create a group by filtering through certain of it's properties
+// and since the default methods doesn't allow to intentionally create a group by filtering through certain of it's properties
 // as illustrated here https://decentralandteam.slack.com/archives/CFK920GJZ/p1561399185149300
 // and here https://decentralandteam.slack.com/archives/CFK920GJZ/p1561399297151400
 
@@ -9,6 +9,9 @@
 // getEntitiesWithComponent //https://github.com/decentraland/ecs-reference/blob/master/docs-latest/decentraland-ecs.engine.getentitieswithcomponent.md
                 
 // usage example
+// create a group named "group_c", with all entitis that have the (custom) component "tileGroup"
+// and whose property tileGroup.groupN   == 0
+// let c = 0
 // Groups.createGroupWithComponentsAndCondition("tileGroup", "groupN", "=="+c, "group"+c)
 
 export default class EntityGroups {
