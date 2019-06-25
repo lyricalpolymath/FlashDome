@@ -53,7 +53,10 @@ export const domeSettings = {
             purpleToRed: ["#A524B3", "#FF2D55"],
             redToYellow: ["#FF2D55", "#FFBC5B"],
         }
+    },
 
+    colors: {
+        greyLight: "#D3D3D3"
     }
 
 }
