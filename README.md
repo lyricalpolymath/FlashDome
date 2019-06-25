@@ -9,7 +9,11 @@ the _interactive_ and _multi-user_ parts will come in the future
 
 author: @lyricalpolymath - b25zero1@gmail.com
 
-![/screenshots/fileDome_01.gif](./screenshots/flashDome_01.gif) 
+![/screenshots/fileDome_01.gif](./screenshots/flashDome_gif_01.gif) 
+<!--![/screenshots/fileDome_01.gif](./screenshots/flashDome_gif_02.gif)-->
+
+![a view from inside the dome](./screenshots/flashDome_01.jpg)
+![a view from inside the dome](./screenshots/flashDome_02.jpg) 
 
 
 ## Why / Motivation 
@@ -60,7 +64,7 @@ and it will be added possibly after the end of the hackaton
 
 - **DJ mode** will create a way to authorize certain users to control the dome in scene UI dashboard that will enable the controller to tweak the parameters of the generative dome
 
-- **more generators and tiles** (there is a hint at a Fibonacci generator that I didn't have time to finish for the hackaton, and we need to explore what it looks like to use 3d models as tiles)...possibly **generators that allow for different tipes of tiles in the same dome**
+- **more generators and tiles** (there is a hint at a Fibonacci generator that I didn't have time to finish for the hackaton, and we need to explore what it looks like to use 3d models as tiles)...possibly **generators that allow for different types of tiles in the same dome**
 
 
 
