@@ -1,6 +1,7 @@
 backups/
 _experiments/
 src/_tests/
+BBNotes.txt
 
 #no need to commit bin, it's generated
 node_modules
